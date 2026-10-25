@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picnic Time! Food & Grammar Quiz</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'picnic-red': '#FF6B6B',
+                        'picnic-yellow': '#FFD166',
+                        'picnic-green': '#06D6A0',
+                        'picnic-blue': '#118AB2',
+                        'picnic-dark': '#073B4C',
+                        'picnic-cream': '#FDFFFC',
+                        'picnic-pink': '#FF85A1'
+                    },
+                    fontFamily: {
+                        'display': ['"Fredoka One"', 'cursive'],
+                        'body': ['"Quicksand"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #E8F5E9;
+            background-image: radial-gradient(#C8E6C9 15%, transparent 16%), radial-gradient(#C8E6C9 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+
+        .font-display {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Gingham Pattern for Picnic Feel */
+        .gingham-bg {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(90deg, rgba(255, 107, 107, 0.2) 50%, transparent 50%),
+                linear-gradient(rgba(255, 107, 107, 0.2) 50%, transparent 50%);
+            background-size: 30px 30px;
+        }
+
+        /* Custom Bounce Animations */
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-gentle-bounce {
+            animation: gentle-bounce 3s infinite ease-in-out;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .wiggle-hover:hover {
+            animation: wiggle 0.3s ease-in-out infinite;
+        }
+
+        /* Card Shadow Styling */
+        .cute-shadow {
+            box-shadow: 0 8px 0px 0px rgba(7, 59, 76, 0.15);
+        }
+        .cute-shadow-sm {
+            box-shadow: 0 4px 0px 0px rgba(7, 59, 76, 0.15);
+        }
+        .cute-shadow-btn {
+            box-shadow: 0 5px 0px 0px #073B4C;
+        }
+        .cute-shadow-btn:active {
+            box-shadow: 0 1px 0px 0px #073B4C;
+            transform: translateY(4px);
+        }
+
+        /* Speech Bubble Tail */
+        .speech-bubble {
+            position: relative;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            border-width: 15px 15px 0 0;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-picnic-dark flex flex-col justify-between p-3 md:p-6">
+
+    <!-- Header Banner -->
+    <header class="max-w-4xl mx-auto w-full text-center mb-6">
+        <div class="bg-white rounded-3xl p-4 md:p-6 border-4 border-picnic-dark cute-shadow relative overflow-hidden">
+            <!-- Decorative Background Flowers -->
+            <div class="absolute -top-4 -left-4 text-picnic-yellow text-4xl opacity-50"><i class="fas fa-sun animate-spin" style="animation-duration: 20s;"></i></div>
+            <div class="absolute -bottom-4 -right-4 text-picnic-pink text-4xl opacity-50"><i class="fas fa-seedling"></i></div>
+
+            <h1 class="font-display text-3xl md:text-5xl text-picnic-red tracking-wide drop-shadow-sm mb-1">
+                🧺 Picnic Time Grammar Fun! 🥪
+            </h1>
+            <p class="text-base md:text-lg font-semibold text-gray-600">
+                Read Mia and Ben's story, then answer the questions!
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-grow">
+
+        <!-- Passage Card (Left Column / Top on Mobile) -->
+        <section class="lg:col-span-5 bg-white rounded-3xl p-5 md:p-6 border-4 border-picnic-dark cute-shadow sticky top-4">
+            <div class="flex items-center justify-between mb-3 border-b-2 border-dashed border-gray-200 pb-2">
+                <h2 class="font-display text-xl text-picnic-blue flex items-center gap-2">
+                    <i class="fas fa-book-open text-picnic-yellow"></i> The Picnic Story
+                </h2>
+                <div class="flex items-center gap-2">
+                    <button id="bgm-btn" onclick="toggleBGM()" class="px-3 py-1 bg-picnic-pink text-white rounded-full font-bold text-sm cute-shadow-btn hover:bg-pink-400 transition flex items-center gap-1">
+                        <i id="bgm-icon" class="fas fa-music"></i> <span id="bgm-btn-text">Music</span>
+                    </button>
+                    <button id="read-story-btn" onclick="toggleReadStory()" class="px-3 py-1 bg-picnic-yellow text-picnic-dark rounded-full font-bold text-sm cute-shadow-btn hover:bg-yellow-300 transition flex items-center gap-1">
+                        <i class="fas fa-volume-up"></i> <span id="read-btn-text">Read</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual Decorative Banner inside passage -->
+            <div class="gingham-bg rounded-2xl p-4 border-2 border-picnic-red mb-4 text-center">
+                <span class="text-3xl space-x-2">🧺 🥛 🧀 🥪 🍎 🥕 🍅 🍪</span>
+            </div>
+
+            <!-- Passage Text -->
+            <div id="story-text" class="text-base md:text-lg leading-relaxed text-gray-800 space-y-3 font-medium">
+                <p>
+                    Mia and Ben are having a picnic in the garden on a sunny day. They bring a picnic basket filled with food and ingredients.
+                </p>
+                <p>
+                    There is some <span class="bg-yellow-100 px-1 rounded font-bold text-yellow-800">milk</span>, <span class="bg-yellow-100 px-1 rounded font-bold text-yellow-800">cheese</span> and <span class="bg-amber-100 px-1 rounded font-bold text-amber-800">chocolate</span> in the basket. There is also some <span class="bg-orange-100 px-1 rounded font-bold text-orange-800">orange juice</span> in a bottle. They pack some <span class="bg-amber-100 px-1 rounded font-bold text-amber-800">sandwiches</span> for lunch.
+                </p>
+                <p>
+                    There are some <span class="bg-red-100 px-1 rounded font-bold text-red-800">apples</span>, <span class="bg-orange-100 px-1 rounded font-bold text-orange-800">carrots</span> and <span class="bg-red-100 px-1 rounded font-bold text-red-800">tomatoes</span> in the basket, too. Mia also brings some <span class="bg-amber-100 px-1 rounded font-bold text-amber-800">biscuits</span> to share with Ben. However, there isn't any <b>yoghurt</b> in the basket, and there aren't any <b>eggs</b> because they do not need them for the picnic. Mia and Ben are excited to enjoy their delicious food together in the garden!
+                </p>
+            </div>
+        </section>
+
+        <!-- Quiz Section (Right Column) -->
+        <section class="lg:col-span-7 space-y-4">
+
+            <!-- Progress & Score Bar -->
+            <div class="bg-white rounded-2xl p-4 border-4 border-picnic-dark cute-shadow-sm flex items-center justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-display text-sm text-picnic-blue" id="question-progress-text">Question 1 of 10</span>
+                        <span class="font-display text-xs text-gray-500" id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4 border-2 border-picnic-dark overflow-hidden">
+                        <div id="progress-bar" class="bg-picnic-green h-full rounded-full transition-all duration-300" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-yellow-100 px-3 py-1.5 rounded-2xl border-2 border-picnic-yellow">
+                    <i class="fas fa-star text-yellow-500 text-xl animate-bounce"></i>
+                    <span id="score-counter" class="font-display text-xl text-picnic-dark">0</span>
+                </div>
+            </div>
+
+            <!-- Active Question Card -->
+            <div id="quiz-card" class="bg-white rounded-3xl p-5 md:p-6 border-4 border-picnic-dark cute-shadow transition-all">
+                
+                <!-- Mascot & Question Prompt -->
+                <div class="flex items-start gap-3 mb-6">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-picnic-pink border-2 border-picnic-dark flex items-center justify-center text-2xl md:text-3xl flex-shrink-0 animate-gentle-bounce">
+                        🐻
+                    </div>
+                    <div class="bg-blue-50 border-2 border-picnic-blue p-4 rounded-2xl rounded-tl-none w-full relative">
+                        <p id="question-number" class="text-xs font-bold text-picnic-blue uppercase tracking-wider mb-1">Question 1</p>
+                        <p id="question-text" class="font-display text-lg md:text-xl text-picnic-dark">
+                            Is there any milk in the picnic basket?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Answer Choices (4 Options) -->
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <!-- Buttons generated dynamically -->
+                </div>
+
+                <!-- Feedback Message Box -->
+                <div id="feedback-box" class="hidden p-4 rounded-2xl border-2 text-center font-bold text-base md:text-lg mb-4 animate-fade-in">
+                    <!-- Dynamic feedback text -->
+                </div>
+
+                <!-- Controls Container -->
+                <div class="flex justify-between items-center pt-2 border-t-2 border-dashed border-gray-100">
+                    <button id="prev-btn" onclick="prevQuestion()" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-2xl cute-shadow-btn hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition" disabled>
+                        <i class="fas fa-arrow-left mr-1"></i> Back
+                    </button>
+                    
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden px-6 py-2.5 bg-picnic-green text-white font-display text-lg rounded-2xl cute-shadow-btn hover:bg-emerald-500 transition">
+                        Next <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Score Summary Screen (Hidden by default) -->
+            <div id="result-screen" class="hidden bg-white rounded-3xl p-6 md:p-8 border-4 border-picnic-dark cute-shadow text-center space-y-6">
+                <div class="text-6xl animate-bounce">🎉</div>
+                <h2 class="font-display text-3xl text-picnic-red">Great Job, Super Star!</h2>
+                
+                <div class="bg-yellow-50 p-6 rounded-3xl border-2 border-picnic-yellow max-w-sm mx-auto space-y-3">
+                    <p class="font-semibold text-gray-600">Your Final Score:</p>
+                    <div class="font-display text-5xl text-picnic-dark">
+                        <span id="final-score">0</span> <span class="text-2xl text-gray-400">/ 10</span>
+                    </div>
+                    <p id="result-message" class="font-bold text-picnic-blue">You know your picnic food very well!</p>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button onclick="restartQuiz()" class="px-6 py-3 bg-picnic-yellow text-picnic-dark font-display text-lg rounded-2xl cute-shadow-btn hover:bg-yellow-300 transition flex items-center gap-2">
+                        <i class="fas fa-redo"></i> Play Again
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-4xl mx-auto w-full text-center mt-6 py-3 text-xs md:text-sm font-semibold text-emerald-800">
+        <p>🌱 Fun Primary School English Grammar Quiz • Picnic Food & Countability</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Quiz Data based on the passage and specified questions
+        const quizData = [
+            {
+                question: "1. Is there any milk in the picnic basket?",
+                food: "milk",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 0,
+                hint: "Milk is uncountable, and it IS in the basket!"
+            },
+            {
+                question: "2. Are there any tomatoes in the basket?",
+                food: "tomatoes",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 2,
+                hint: "Tomatoes are plural (are), and they ARE in the basket!"
+            },
+            {
+                question: "3. Is there any yoghurt in the basket?",
+                food: "yoghurt",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 1,
+                hint: "The story says 'there isn't any yoghurt'!"
+            },
+            {
+                question: "4. Are there any eggs in the basket?",
+                food: "eggs",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 3,
+                hint: "Eggs are plural, and the story says 'there aren't any eggs'!"
+            },
+            {
+                question: "5. Is there any orange juice in the bottle?",
+                food: "orange juice",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 0,
+                hint: "Orange juice is uncountable, and it IS in the bottle!"
+            },
+            {
+                question: "6. Are there any apples in the basket?",
+                food: "apples",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 2,
+                hint: "Apples are plural (are), and they ARE in the basket!"
+            },
+            {
+                question: "7. Is there any cheese in the basket?",
+                food: "cheese",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 0,
+                hint: "Cheese is uncountable (is), and it IS in the basket!"
+            },
+            {
+                question: "8. Are there any pancakes in the basket?",
+                food: "pancakes",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 3,
+                hint: "Pancakes are plural, but they are NOT mentioned in the story!"
+            },
+            {
+                question: "9. Is there any peas on the plate?",
+                food: "peas",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 1,
+                hint: "There are no peas mentioned in the story!"
+            },
+            {
+                question: "10. Are there any biscuits in the basket?",
+                food: "biscuits",
+                options: ["Yes, there is.", "No, there isn't.", "Yes, there are.", "No, there aren't."],
+                correct: 2,
+                hint: "Biscuits are plural (are), and Mia brought some to share!"
+            }
+        ];
+
+        // State variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        // Background Music Synthesizer state
+        let audioCtx = null;
+        let isBgmPlaying = false;
+        let bgmTimeout = null;
+        let currentNoteIndex = 0;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Play gentle BGM using Web Audio API synthesized notes
+        const bgmNotes = [
+            { note: 261.63, duration: 0.4 }, // C4
+            { note: 329.63, duration: 0.4 }, // E4
+            { note: 392.00, duration: 0.4 }, // G4
+            { note: 523.25, duration: 0.4 }, // C5
+            { note: 440.00, duration: 0.4 }, // A4
+            { note: 392.00, duration: 0.4 }, // G4
+            { note: 329.63, duration: 0.4 }, // E4
+            { note: 293.66, duration: 0.4 }, // D4
+            { note: 261.63, duration: 0.4 }, // C4
+            { note: 329.63, duration: 0.4 }, // E4
+            { note: 392.00, duration: 0.4 }, // G4
+            { note: 440.00, duration: 0.4 }, // A4
+            { note: 392.00, duration: 0.8 }, // G4
+        ];
+
+        function playNextBgmNote() {
+            if (!isBgmPlaying) return;
+            initAudioContext();
+
+            const current = bgmNotes[currentNoteIndex];
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle'; // Soft acoustic feel
+                osc.frequency.setValueAtTime(current.note, audioCtx.currentTime);
+
+                // Very low background volume
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + current.duration * 0.9);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + current.duration);
+            } catch (e) {}
+
+            currentNoteIndex = (currentNoteIndex + 1) % bgmNotes.length;
+            bgmTimeout = setTimeout(playNextBgmNote, current.duration * 1000);
+        }
+
+        function toggleBGM() {
+            initAudioContext();
+            isBgmPlaying = !isBgmPlaying;
+            const btnText = document.getElementById('bgm-btn-text');
+            const bgmIcon = document.getElementById('bgm-icon');
+
+            if (isBgmPlaying) {
+                btnText.innerText = 'Pause';
+                bgmIcon.className = 'fas fa-pause';
+                playNextBgmNote();
+            } else {
+                btnText.innerText = 'Music';
+                bgmIcon.className = 'fas fa-music';
+                if (bgmTimeout) clearTimeout(bgmTimeout);
+            }
+        }
+
+        // Sound FX using Web Audio API to avoid external asset dependency errors
+        function playAudioTone(freq, type, duration) {
+            try {
+                initAudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // Audio Context fallback if blocked
+            }
+        }
+
+        function playCorrectSound() {
+            playAudioTone(523.25, 'sine', 0.15); // C5
+            setTimeout(() => playAudioTone(659.25, 'sine', 0.25), 100); // E5
+        }
+
+        function playWrongSound() {
+            playAudioTone(220, 'triangle', 0.2); // A3
+            setTimeout(() => playAudioTone(180, 'triangle', 0.3), 150);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            loadQuestion();
+        };
+
+        // Load Active Question
+        function loadQuestion() {
+            const current = quizData[currentQuestionIndex];
+
+            // Update Header & Progress
+            document.getElementById('question-progress-text').innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            const progressPercent = Math.round(((currentQuestionIndex + 1) / quizData.length) * 100);
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-percent').innerText = `${progressPercent}%`;
+
+            // Update Question UI
+            document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('question-text').innerText = current.question;
+
+            // Render Option Buttons
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const isAnswered = userAnswers[currentQuestionIndex] !== null;
+
+            current.options.forEach((optionText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3.5 md:p-4 rounded-2xl border-3 font-semibold text-base transition-all flex items-center justify-between cute-shadow-btn `;
+                
+                // Styling state based on answered status
+                if (isAnswered) {
+                    const selectedIdx = userAnswers[currentQuestionIndex];
+                    if (idx === current.correct) {
+                        btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+                        btn.innerHTML = `<span>${idx + 1}. ${optionText}</span> <i class="fas fa-check-circle text-emerald-600 text-xl"></i>`;
+                    } else if (idx === selectedIdx) {
+                        btn.classList.add('bg-red-100', 'border-red-400', 'text-red-800');
+                        btn.innerHTML = `<span>${idx + 1}. ${optionText}</span> <i class="fas fa-times-circle text-red-500 text-xl"></i>`;
+                    } else {
+                        btn.classList.add('bg-gray-50', 'border-gray-200', 'text-gray-400', 'opacity-60');
+                        btn.innerText = `${idx + 1}. ${optionText}`;
+                    }
+                    btn.disabled = true;
+                } else {
+                    btn.classList.add('bg-white', 'border-picnic-dark', 'hover:bg-amber-50', 'text-picnic-dark');
+                    btn.innerText = `${idx + 1}. ${optionText}`;
+                    btn.onclick = () => selectAnswer(idx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // Feedback Box Visibility
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                const selectedIdx = userAnswers[currentQuestionIndex];
+                feedbackBox.classList.remove('hidden', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-800', 'bg-red-100', 'border-red-400', 'text-red-800');
+                
+                if (selectedIdx === current.correct) {
+                    feedbackBox.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+                    feedbackBox.innerHTML = `<i class="fas fa-star text-yellow-500 mr-2"></i> Correct! Excellent job!`;
+                } else {
+                    feedbackBox.classList.add('bg-red-100', 'border-red-400', 'text-red-800');
+                    feedbackBox.innerHTML = `<i class="fas fa-lightbulb text-amber-500 mr-2"></i> Oops! Hint: ${current.hint}`;
+                }
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Navigation Buttons State
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+
+            const nextBtn = document.getElementById('next-btn');
+            if (isAnswered) {
+                nextBtn.classList.remove('hidden');
+                nextBtn.innerText = (currentQuestionIndex === quizData.length - 1) ? 'See Results 🎉' : 'Next ➔';
+            } else {
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        // Handle Answer Selection
+        function selectAnswer(optionIndex) {
+            if (userAnswers[currentQuestionIndex] !== null) return; // Prevent re-select
+
+            userAnswers[currentQuestionIndex] = optionIndex;
+            const current = quizData[currentQuestionIndex];
+
+            if (optionIndex === current.correct) {
+                score++;
+                document.getElementById('score-counter').innerText = score;
+                playCorrectSound();
+            } else {
+                playWrongSound();
+            }
+
+            loadQuestion();
+        }
+
+        // Navigation Handlers
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        // Results View
+        function showResults() {
+            document.getElementById('quiz-card').classList.add('hidden');
+            const resultScreen = document.getElementById('result-screen');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = score;
+
+            const msgElement = document.getElementById('result-message');
+            if (score === 10) {
+                msgElement.innerText = "🏆 Perfect Score! You are a Picnic Grammar Master!";
+            } else if (score >= 7) {
+                msgElement.innerText = "🌟 Great Job! You know your picnic food very well!";
+            } else if (score >= 5) {
+                msgElement.innerText = "👍 Good try! Read the story once more to practice!";
+            } else {
+                msgElement.innerText = "💪 Keep practicing! You can do even better next time!";
+            }
+
+            // Trigger Confetti Celebration
+            try {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch(e) {}
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            document.getElementById('score-counter').innerText = '0';
+
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        // Text-to-Speech Feature for Pupil Reading Support
+        function toggleReadStory() {
+            if ('speechSynthesis' in window) {
+                if (isSpeaking) {
+                    synth.cancel();
+                    isSpeaking = false;
+                    document.getElementById('read-btn-text').innerText = 'Read';
+                } else {
+                    const passageText = "Mia and Ben are having a picnic in the garden on a sunny day. They bring a picnic basket filled with food and ingredients. There is some milk, cheese and chocolate in the basket. There is also some orange juice in a bottle. They pack some sandwiches for lunch. There are some apples, carrots and tomatoes in the basket, too. Mia also brings some biscuits to share with Ben. However, there isn't any yoghurt in the basket, and there aren't any eggs because they do not need them for the picnic. Mia and Ben are excited to enjoy their delicious food together in the garden.";
+                    
+                    const utterance = new SpeechSynthesisUtterance(passageText);
+                    utterance.rate = 0.85; // Slightly slower for primary pupils
+                    utterance.pitch = 1.1;  // Friendly, warm tone
+
+                    // Select a female voice if available
+                    const voices = synth.getVoices();
+                    const femaleVoice = voices.find(v => 
+                        v.lang.startsWith('en') && 
+                        (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Fiona') || v.name.includes('Google US English') || v.name.includes('Natural'))
+                    );
+                    
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
+                    }
+
+                    utterance.onend = function() {
+                        isSpeaking = false;
+                        document.getElementById('read-btn-text').innerText = 'Read';
+                    };
+
+                    synth.speak(utterance);
+                    isSpeaking = true;
+                    document.getElementById('read-btn-text').innerText = 'Stop';
+                }
+            } else {
+                alert("Speech synthesis is not supported in your browser.");
+            }
+        }
+
+        // Ensure voices are loaded for SpeechSynthesis
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.speechSynthesis.getVoices();
+            };
+        }
+    </script>
+</body>
+</html>
